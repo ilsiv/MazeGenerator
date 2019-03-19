@@ -1,9 +1,9 @@
-class Cell {
+class Cell { //<>//
   int i = -1;
   int j = -1;
   boolean visited = false;
   boolean frontier = false;
-
+  boolean render=true;
   //wall {N,E,S,W}
   int[] walls = {1, 1, 1, 1}; 
 
@@ -16,9 +16,14 @@ class Cell {
     push();
     if (frontier==true) {
       fill(159, 0, 0, 100);
-    } else {
+      //if (DEBUG) println("cell.draw frontier==true");
+    } else if ((frontier==false) && (visited == false)) {
+      fill(240, 240, 240, 100);
+      //if (DEBUG) println("cell.draw frontier==false");
+    } else if ((frontier==false) && (visited == true)) {
       fill(0, 0, 240, 100);
     }
+
     stroke(0);
     strokeWeight(1);
 
@@ -62,7 +67,7 @@ class Cell {
     if (i>0) {
       arr.add(cells[i-1][j]);
     }
-    return arr; //arrayList di vicini
+    return arr; //arrayList of neighbors
   }
 
   // search for visited neighbors cells (no frontier)
@@ -94,42 +99,57 @@ class Cell {
     return arr;
   }
 
-  
+
 
   // add frontier of this cell to the list
   void addFrontier() {
     ArrayList<Cell> arr;
     arr = findNeighbors();
     for (Cell c : arr) {
+      boolean ins = true;
       if (c.visited == false && c.frontier == false) {
-        frontiers.add(c);
-        println("frontiers.add(c);"+c.i +" "+ c.j);
+        // if frontier is not already listed
+        ins = !frontiers.contains(this);
+        if (ins) {
+          if (DEBUG) println("frontiers.add(c) = "+c.i +" "+ c.j + " - " + c);
+          frontiers.add(c);
+        }
+        c.frontier= true;
       }
     }
   }
-  
-  
-  // delete wall index i
-  void deleteWall(int q) {
-    //wall {N,E,S,W}
-    // i = wall index
-    walls[q] = 0;
 
-    //delete south wall of cell (i,j-1)
-    if ((q==0)&&(j>0)) {
-      cells[i][j-1].walls[2] = 0;
+  void deleteWallCell(Cell p) {
+
+    if (DEBUG) println("deleteWallCell before p:" + p.i + " " + p.j + " - " + p + " / " + walls[0]+walls[1]+walls[2]+walls[3]);
+    // N - S
+    if (i==p.i) {
+      // N
+      if (j>p.j) {
+        if (DEBUG) println("wall N");
+        p.walls[2]=0;
+        walls[0]=0;
+      }
+      // S
+      else if (j<p.j) {
+        if (DEBUG) println("wall S");
+        p.walls[0]=0;
+        walls[2]=0;
+      }
+    } else if (j==p.j) {
+      // E
+      if (i<p.i) {
+        if (DEBUG) println("wall E");
+        p.walls[3]=0;
+        walls[1]=0;
+      }
+      // W
+      else if (i>p.i) {
+        if (DEBUG) println("wall W");
+        p.walls[1]=0;
+        walls[3]=0;
+      }
     }
-    //delete west wall of cell (i+1,j)
-    if ((q==1)&&(i<w)) {
-      cells[i+1][j].walls[3] = 0;
-    }
-    //delete north wall of cell (i,j+1)
-    if ((q==2)&&(j<h)) {
-      cells[i][j+1].walls[0] = 0;
-    }
-    //delete east wall of cell (i-1,j)
-    if ((q==3)&&(i>0)) {
-      cells[i-1][j].walls[1] = 0;
-    }
+    if (DEBUG) println("deleteWallCell after  p:" + p.i + " " + p.j + " - " + p + " / " + i + " " + j + " " + walls[0]+walls[1]+walls[2]+walls[3]);
   }
 }
