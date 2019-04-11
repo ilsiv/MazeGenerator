@@ -21,12 +21,15 @@ class Cell { //<>//
       fill(240, 240, 240, 100);
       //if (DEBUG) println("cell.draw frontier==false");
     } else if ((frontier==false) && (visited == true)) {
-      fill(0, 0, 240, 100);
+      fill(240, 240, 240, 100);
     }
 
     stroke(0);
-    strokeWeight(1);
-
+    if (IM) {
+      strokeWeight(defineStrokeWeight());
+    } else {
+      strokeWeight(1);
+    }
     translate(i*w, j*h);
     noStroke();
     rect(0, 0, w, h);
@@ -44,6 +47,14 @@ class Cell { //<>//
     pop();
   }
 
+  float defineStrokeWeight() {
+    img.loadPixels();
+    
+    int index = j*h*img.width + w*i; //(w*(i-1) + w ) + j*h;
+
+    float r  = map(brightness(img.pixels[index]), 0, 255, 2.5, 0.1); 
+    return r;
+  }
 
   // search for all Neighbors
   ArrayList<Cell> findNeighbors() {
